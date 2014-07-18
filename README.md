@@ -7,6 +7,9 @@ twigo is a go library wrapped around Twilio's REST APIs for initiating calls and
 ##SMS:
 ```
 1. POST /2010-04-01/Accounts/{AccountSid}/Messages.json
+```
+##Voice:
+```
 2. POST /2010-04-01/Accounts/{AccountSid}/Calls.json
 ```
 
