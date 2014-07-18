@@ -10,7 +10,7 @@ twigo is a go library wrapped around Twilio's REST APIs for initiating calls and
 ```
 ##Voice:
 ```
-2. POST /2010-04-01/Accounts/{AccountSid}/Calls.json
+1. POST /2010-04-01/Accounts/{AccountSid}/Calls.json
 ```
 
 #Usage
@@ -33,7 +33,7 @@ func main() {
         // Create message
         message := &twigo.SMS{To:"+18001234567",Body:"Hello,World!"}
 
-	// Send a Text
+        // Send a Text
         twilio_response,twilio_error := client.Text(message)
 
         // Pretty print Twilio Response
