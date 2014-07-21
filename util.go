@@ -8,21 +8,25 @@ const (
 )
 
 type Client struct {
-	AccountSid, AuthToken, Number string
+	AccountSid string `required`
+	AuthToken  string `required`
+	Number 	   string `required`
 }
 
 type SMS struct {
-	To, Body string
+	To   string `required`
+	Body string `required`
 }
 
 type Voice struct {
-	To, Url string
+	To  string `required` 
+	Url string `required`
 }
 
 type TwilioError struct {
-	Status int  `json:"status"`
-	Message string `json:"message"`
-	Code int `json:"code"`
+	Status 	int  	`json:"status"`
+	Message string  `json:"message"`
+	Code 	int 	`json:"code"`
 }
 
 type TwilioResponse struct {
