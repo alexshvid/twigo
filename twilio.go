@@ -8,6 +8,7 @@ import (
 	"strings"
 	"encoding/json"
 	"io/ioutil"
+	"reflect"
 )
 
 func Send(client *Client, msg interface{}) (*TwilioResponse, *TwilioError) {
@@ -73,4 +74,27 @@ func GetRestUrl(client *Client, end_point string) (*string, error) {
 
 	url = buffer.String()
 	return &url, nil
+}
+
+func Validate(params interface{}) (error) {
+
+        var object interface{}
+
+        switch t := params.(type) {
+                case Client, SMS, Voice:
+                        object = t
+                default:
+                        return fmt.Errorf("Assertion Error -- Unknown Type")
+        }
+
+        for k := 0; k < reflect.ValueOf(object).NumField(); k++ {
+                field := reflect.ValueOf(object).Type().Field(k)
+                value := reflect.ValueOf(object).Field(k).String()
+
+                if value == "" && field.Tag == "required" {
+                        return fmt.Errorf("Missing Required Field: %s", field.Name)
+                }
+        }
+
+        return nil
 }
