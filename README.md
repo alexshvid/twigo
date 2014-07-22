@@ -28,13 +28,21 @@ import (
 func main() {
    
         // Initiate new Twilio Session
-        client, _ := twigo.NewClient(<ACCOUNT_SID>, <AUTH_TOKEN>, <TWILIO_NUMBER>)
+        client, err := twigo.NewClient(<ACCOUNT_SID>, <AUTH_TOKEN>, <TWILIO_NUMBER>)
+
+	if err != nil {
+		fmt.Println(err)
+	}
 
         // Create message
         message := &twigo.SMS{To:"+18001234567",Body:"Hello,World!"}
 
         // Send a Text
-        twilio_response,twilio_error := client.Text(message)
+        twilio_response,twilio_error,err := client.Text(message)
+
+	if err != nil {
+		fmt.Println(err):
+	}
 
         // Pretty print Twilio Response
         fmt.Println("Twilio Response: ")
