@@ -25,7 +25,7 @@ func GetRestUrl(acctSid, endpoint string) (string) {
         return url
 }
 
-func Send(client *Client, request TwilioRequest, response TwilioResponse) (interface{}, error) {
+func Send(client *Client, request TwilioRequest, response TwilioResponse) (error) {
        	var twilio_url string
 	var url_params url.Values	
 
@@ -46,17 +46,16 @@ func Send(client *Client, request TwilioRequest, response TwilioResponse) (inter
         resp_body, _ := ioutil.ReadAll(resp.Body)
 
 	var twilio_error TwilioError
-	var twilio_response interface{}
 	var err error 
 
         if resp.StatusCode != http.StatusCreated {
                 json.Unmarshal(resp_body,&twilio_error)
 		err = twilioErrToError(&twilio_error)
 	} else {
-        	twilio_response = response.Decode(resp_body)
+		response.Decode(resp_body)
 	}
 
-        return twilio_response,err
+        return err
 }
 
 func twilioErrToError(twilioError *TwilioError) error {
