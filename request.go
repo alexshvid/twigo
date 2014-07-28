@@ -1,29 +1,12 @@
 package twigo
 
 import ( 
-	"encoding/json"
 	"net/url"
 )
 
 type TwilioRequest interface {
 	GetUrl(string) string
 	Headers() url.Values 
-}
-
-type TwilioResponse interface {
-	Decode([]byte) interface{}
-}
-
-func (smsResponse *SMSResponse) Decode(respBody []byte) interface{} {
-
-	json.Unmarshal(respBody,smsResponse)
-	return smsResponse 
-}
-
-func (callResponse *CALLResponse) Decode(respBody []byte) interface{} {
-
-	json.Unmarshal(respBody,callResponse)
-	return callResponse
 }
 
 func (sms *SMS) GetUrl(acctSid string) string {
