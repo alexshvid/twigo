@@ -1,49 +1,63 @@
 package twigo
 
-const (
-	BASE_URL = "https://api.twilio.com/"
-	API_VERSION = "2010-04-01"
-	SMS_ENDPOINT = "/SMS/Messages.json"
-	VOICE_ENDPOINT = "/Calls.json"
+import (
+	"strings"
+	"io/ioutil"
+	"encoding/json"
+	"net/http"
+	"net/url"
+	"bytes"
+	"fmt"
 )
 
-type Client struct {
-	AccountSid string `required`
-	AuthToken  string `required`
-	Number 	   string `required`
+func GetRestUrl(acctSid, endpoint string) (string) {
+        var buffer bytes.Buffer
+        var url string
+
+        buffer.WriteString(BASE_URL)
+        buffer.WriteString(API_VERSION)
+        buffer.WriteString("/Accounts/")
+        buffer.WriteString(acctSid)
+        buffer.WriteString(endpoint)
+
+        url = buffer.String()
+        return url
 }
 
-type SMS struct {
-	To   string `required`
-	Body string `required`
+func Send(client *Client, request TwilioRequest, response TwilioResponse) (interface{}, error) {
+       	var twilio_url string
+	var url_params url.Values	
+
+        twilio_url = request.GetUrl(client.AccountSid)
+	url_params = request.Headers()
+        url_params.Set("From",client.Number)
+	
+	req, _ := http.NewRequest("POST",twilio_url,strings.NewReader(url_params.Encode()))
+        req.SetBasicAuth(client.AccountSid,client.AuthToken)
+        req.Header.Add("Content-Type","application/x-www-form-urlencoded")
+        req.Header.Add("Accept","application/json")
+
+	http_client := &http.Client{}
+        resp, _ := http_client.Do(req)
+
+        defer resp.Body.Close()
+
+        resp_body, _ := ioutil.ReadAll(resp.Body)
+
+	var twilio_error TwilioError
+	var twilio_response interface{}
+	var err error 
+
+        if resp.StatusCode != http.StatusCreated {
+                json.Unmarshal(resp_body,&twilio_error)
+		err = twilioErrToError(&twilio_error)
+	} else {
+        	twilio_response = response.Decode(resp_body)
+	}
+
+        return twilio_response,err
 }
 
-type Voice struct {
-	To  string `required` 
-	Url string `required`
-}
-
-type TwilioError struct {
-	Status 	int  	`json:"status"`
-	Message string  `json:"message"`
-	Code 	int 	`json:"code"`
-}
-
-type TwilioResponse struct {
-	Sid         string   `json:"sid"`
-	DateCreated string   `json:"date_created"`
-	DateUpdate  string   `json:"date_updated"`
-	DateSent    string   `json:"date_sent"`
-	AccountSid  string   `json:"account_sid"`
-	NumSegments string   `json:"num_segments"`
-	ErrorCode   string   `json:"error_code"`
-	ErrorMsg    string   `json:"error_message"`
-	To          string   `json:"to"`
-	From        string   `json:"from"`
-	Body        string   `json:"body"`
-	Status      string   `json:"status"`
-	Direction   string   `json:"direction"`
-	ApiVersion  string   `json:"api_version"`
-	Price       *float32 `json:"price,omitempty"`
-	Url         string   `json:"uri"`
+func twilioErrToError(twilioError *TwilioError) error {
+	return fmt.Errorf("Status: %d, Message: %s",twilioError.Status,twilioError.Message)	
 }
