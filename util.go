@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"reflect"
 	"bytes"
 	"fmt"
 )
@@ -60,4 +61,27 @@ func Send(client *Client, request TwilioRequest, response TwilioResponse) (inter
 
 func twilioErrToError(twilioError *TwilioError) error {
 	return fmt.Errorf("Status: %d, Message: %s",twilioError.Status,twilioError.Message)	
+}
+
+func Validate(params interface{}) (error) {
+
+        var object interface{}
+
+        switch t := params.(type) {
+                case Client, SMS, CALL:
+                        object = t
+                default:
+                        return fmt.Errorf("Assertion Error -- Unknown Type")
+        }
+
+        for k := 0; k < reflect.ValueOf(object).NumField(); k++ {
+                field := reflect.ValueOf(object).Type().Field(k)
+                value := reflect.ValueOf(object).Field(k).String()
+
+                if value == "" && field.Tag == "required" {
+                        return fmt.Errorf("Missing Required Field: %s", field.Name)
+                }
+        }
+
+        return nil
 }
