@@ -38,20 +38,10 @@ func main() {
         message := &twigo.SMS{To:"+18001234567",Body:"Hello,World!"}
 
         // Send a Text
-        twilio_response,twilio_error,err := client.Text(message)
+        twilio_response,err := client.Text(message)
 
 		if err != nil {
 			fmt.Println(err):
 		}
-
-        // Pretty print Twilio Response
-        fmt.Println("Twilio Response: ")
-        b,_ := json.MarshalIndent(twilio_response," ","   ")
-        fmt.Println(string(b))
-
-        // Pretty print Twilio Error Response
-        fmt.Println("Twilio Error: ")
-        b1,_ := json.MarshalIndent(twilio_error," ","   ")
-        fmt.Println(string(b1))
 }
 ```
