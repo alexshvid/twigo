@@ -33,22 +33,30 @@ func Send(client *Client, request TwilioRequest, response TwilioResponse) (error
 	url_params = request.Headers()
         url_params.Set("From",client.Number)
 	
-	req, _ := http.NewRequest("POST",twilio_url,strings.NewReader(url_params.Encode()))
-        req.SetBasicAuth(client.AccountSid,client.AuthToken)
-        req.Header.Add("Content-Type","application/x-www-form-urlencoded")
-        req.Header.Add("Accept","application/json")
+	req, err := http.NewRequest("POST",twilio_url,strings.NewReader(url_params.Encode()))
+
+	if err != nil {
+		return err
+	}
+
+	req.SetBasicAuth(client.AccountSid,client.AuthToken)
+	req.Header.Add("Content-Type","application/x-www-form-urlencoded")
+	req.Header.Add("Accept","application/json")
 
 	http_client := &http.Client{}
-        resp, _ := http_client.Do(req)
+        resp, err := http_client.Do(req)
+
+	if err != nil {
+		return err
+	}
 
         defer resp.Body.Close()
 
         resp_body, _ := ioutil.ReadAll(resp.Body)
 
 	var twilio_error TwilioError
-	var err error 
-
-        if resp.StatusCode != http.StatusCreated {
+        
+	if resp.StatusCode != http.StatusCreated {
                 json.Unmarshal(resp_body,&twilio_error)
 		err = twilioErrToError(&twilio_error)
 		return err
