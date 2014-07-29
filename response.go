@@ -5,15 +5,27 @@ import (
 )
 
 type TwilioResponse interface {
-	Decode([]byte) 
+	Decode([]byte) (error)
 }
 
-func (smsResponse *SMSResponse) Decode(respBody []byte) {
+func (smsResponse *SMSResponse) Decode(respBody []byte) (error) {
 
-        json.Unmarshal(respBody,smsResponse)
+        err := json.Unmarshal(respBody,smsResponse)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (callResponse *CALLResponse) Decode(respBody []byte) {
+func (callResponse *CALLResponse) Decode(respBody []byte) (error) {
 
-        json.Unmarshal(respBody,callResponse)
+        err := json.Unmarshal(respBody,callResponse)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

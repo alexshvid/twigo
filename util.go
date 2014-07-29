@@ -51,11 +51,16 @@ func Send(client *Client, request TwilioRequest, response TwilioResponse) (error
         if resp.StatusCode != http.StatusCreated {
                 json.Unmarshal(resp_body,&twilio_error)
 		err = twilioErrToError(&twilio_error)
+		return err
 	} else {
-		response.Decode(resp_body)
+		err = response.Decode(resp_body)
+
+		if err != nil {
+			return err
+		}
 	}
 
-        return err
+        return nil
 }
 
 func twilioErrToError(twilioError *TwilioError) error {
